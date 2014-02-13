@@ -3,12 +3,11 @@ rvm:
   - 2.0.0
 before_install:
   - sudo apt-get update
-  - sudo apt-get -qq install gfortran-4.7 gfortran-4.8 gcc-snapshot
+  - sudo apt-get -qq install gfortran-4.7 gcc-snapshot
   - gem install fort
 script:
   - cd src
   - make test
 env:
   - MY_ERB="erb -T - -P" MY_FORTRAN_DEBUG="gfortran-4.7 -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG" MY_RUBY="ruby"
-  - MY_ERB="erb -T - -P" MY_FORTRAN_DEBUG="gfortran-4.8 -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG" MY_RUBY="ruby"
   - MY_ERB="erb -T - -P" MY_FORTRAN_DEBUG="/usr/lib/gcc-snapshot/bin/gfortran -ffree-line-length-none -fmax-identifier-length=63 -pipe -cpp -C -Wall -fbounds-check -O0 -fbacktrace -ggdb -pg -DDEBUG" MY_RUBY="ruby"
