@@ -21,16 +21,27 @@ module character_lib
    public:: operator(+)          ! Syntax sugar of `//'. This will be useful if you want to use `//' within macro where `//' is discarded.
    public:: str ! Convert a value to a string.
 
-   integer, parameter, public:: MAX_STR_LEN = 2**11  ! Maximum length of str.
-
    interface operator(+)
       module procedure add
    end interface operator(+)
 
    <%- TYPES.each{|t| -%>
       interface str
-         module procedure str<%= t %>
+         module procedure str_default<%= t %>
       end interface str
+      <%- INT_TYPES.each{|it| -%>
+         interface str
+            module procedure str<%= t %><%= it %>
+         end interface str
+      <%- } -%>
+   <%- } -%>
+
+   <%- TYPES.each{|t| -%>
+      <%- INT_TYPES.each{|it| -%>
+         interface str_fixed
+            module procedure str_fixed<%= t %><%= it %>
+         end interface str_fixed
+      <%- } -%>
    <%- } -%>
 
 contains
@@ -104,19 +115,32 @@ contains
    end function add
 
    <%- TYPES.each{|t| -%>
-      pure function str<%= t %>(x) result(ret)
+      pure function str_default<%= t %>(x) result(ret)
+         Integer, parameter:: DEFAULT_STR_LEN = 2**11
          <%= t.declare %>, intent(in):: x
-         character(len=len_trim(adjustl(str_fixed<%= t %>(x)))):: ret
+         character(len=len_trim(adjustl(str_fixed(x, DEFAULT_STR_LEN)))):: ret
 
-         ret = s(str_fixed<%= t %>(x))
-      end function str<%= t %>
+         ret = s(str_fixed(x, DEFAULT_STR_LEN))
+      end function str_default<%= t %>
 
-      pure function str_fixed<%= t %>(x) result(ret)
-         character(len=MAX_STR_LEN):: ret
-         <%= t.declare %>, intent(in):: x
+      <%- INT_TYPES.each{|it| -%>
+         pure function str<%= t %><%= it %>(x, strLen) result(ret)
+            <%= it.declare %>, intent(in):: strLen
+            <%= t.declare %>, intent(in):: x
+            character(len=len_trim(adjustl(str_fixed(x, strLen)))):: ret
 
-         write(ret, *) x
-         ret = s(ret)
-      end function str_fixed<%= t %>
+            ret = s(str_fixed(x, strLen))
+         end function str<%= t %><%= it %>
+
+         pure function str_fixed<%= t %><%= it %>(x, strLen) result(ret)
+            <%= it.declare %>, intent(in):: strLen
+            character(len=strLen):: ret
+            <%= t.declare %>, intent(in):: x
+            Integer:: ios
+
+            write(ret, *, iostat=ios) x
+            ret = s(ret)
+         end function str_fixed<%= t %><%= it %>
+      <%- } -%>
    <%- } -%>
 end module character_lib

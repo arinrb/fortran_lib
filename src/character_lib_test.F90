@@ -30,6 +30,8 @@ program character_lib_test
    TEST(str(-1) == '-1')
    sBuffer = str(0.0)
    TEST(sBuffer == '0.000000')
+   sBuffer = str(0.0, 30)
+   TEST(sBuffer == '0.000000')
    sBuffer = str(1.0)
    TEST(sBuffer == '1.000000')
    dBuffer = str(0.0_REAL64)
